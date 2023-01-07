@@ -19,9 +19,9 @@ export default function TaskEditPage() {
 
 export async function loader({ request, params }: LoaderArgs) {
   try {
-    const userId = await requireAuthentication(request);
+    const userInfo = await requireAuthentication(request);
     const taskID = params.id!;
-    const task = await fetchTaskById(+taskID, userId);
+    const task = await fetchTaskById(+taskID, userInfo.userId);
     if (!task) {
       throw json("Task not found with given taskid", {
         status: 404,
@@ -37,7 +37,7 @@ export async function loader({ request, params }: LoaderArgs) {
 
 export async function action({ request, params }: ActionArgs) {
   try {
-    const userId = await requireAuthentication(request);
+    const userInfo = await requireAuthentication(request);
     const taskId = params.id;
 
     if (!taskId) {
@@ -47,7 +47,7 @@ export async function action({ request, params }: ActionArgs) {
       });
     }
     if (request.method === "DELETE") {
-      await deleteTaskById(+taskId, userId);
+      await deleteTaskById(+taskId, userInfo.userId);
       return redirect("/tasks");
     } else if (request.method === "POST") {
       const task = Object.fromEntries(await request.formData()) as TaskPayload;
@@ -56,7 +56,7 @@ export async function action({ request, params }: ActionArgs) {
       } catch (e) {
         return e;
       }
-      await updateTask(+taskId, userId, task);
+      await updateTask(+taskId, userInfo.userId, task);
       return redirect("/tasks");
     }
     return null;

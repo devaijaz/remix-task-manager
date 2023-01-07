@@ -20,14 +20,14 @@ export default function TaskAddPage() {
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
-  const userId = await requireAuthentication(request);
+  const userInfo = await requireAuthentication(request);
   const task = Object.fromEntries(formData) as TaskPayload;
   try {
     validateTask(task);
   } catch (e) {
     return e;
   }
-  await createTask(task, userId);
+  await createTask(task, userInfo.userId);
   return redirect("/tasks");
 }
 
