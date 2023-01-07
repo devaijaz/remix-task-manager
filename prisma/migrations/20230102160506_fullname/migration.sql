@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `user` ADD COLUMN `enabled` BOOLEAN NOT NULL DEFAULT true,
+    ADD COLUMN `fullname` VARCHAR(25) NOT NULL DEFAULT '';
