@@ -1,9 +1,13 @@
 import type { ObjectSchema, ValidationResult } from "joi";
 import Joi from "joi";
+import {z} from "zod";
 import type { TaskPayload } from "~/types/index.server";
 
 const taskSchema = Joi.object<any>({
-  title: Joi.string().min(5).required(),
+  title: Joi.string().min(5).max(255).required().messages({
+    'any.required': `title must be 5 chars long`,
+    "string.empty": `title must be 5 chars long`,
+  }),
   content: Joi.string().min(5).required(),
 });
 
@@ -21,7 +25,6 @@ function validateSchema<T>(schema: ObjectSchema<T>, payload: T) {
   const validation = schema.validate(payload, {
     abortEarly: false,
   });
-  console.log(validation);
   throwError(validation);
 }
 
@@ -30,13 +33,15 @@ export const validateTask = (task: TaskPayload) => {
 };
 
 export const validateAuthForm = (auth: any) => {
-  console.log(auth);
   validateSchema(authSchema, auth);
 };
 
 function throwError(validation: ValidationResult) {
-  const messages = validation.error?.details?.map((detail) => detail.message);
-  if (messages && messages.length) {
-    throw messages;
+  const errors  = {};
+  validation.error?.details?.forEach((detail) => {
+    errors[detail.path[0]] = detail.message;
+  });
+  if (Object.keys(errors).length) {
+    throw errors;
   }
 }

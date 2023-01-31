@@ -19,8 +19,8 @@ export default function TaskAddPage() {
 }
 
 export async function action({ request }: ActionArgs) {
-  const formData = await request.formData();
   const userInfo = await requireAuthentication(request);
+  const formData = await request.formData();
   const task = Object.fromEntries(formData) as TaskPayload;
   try {
     validateTask(task);
